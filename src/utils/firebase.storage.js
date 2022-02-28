@@ -18,6 +18,9 @@ module.exports = class {
         return storage.file(path)
     }
     static async generateUrl(path) {
-        return storage.file(path).getSignedUrl({ action: "read", expires: Date.now() + 24 * 60 * 60 * 1000 })
+        return (await storage.file(path).getSignedUrl({ action: "read", expires: Date.now() + 24 * 60 * 60 * 1000 }))[0]
+    }
+    static async deleteFile(path) {
+        return storage.deleteFiles([path])
     }
 }

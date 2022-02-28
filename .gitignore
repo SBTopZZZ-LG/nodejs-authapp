@@ -9,3 +9,6 @@
 .env
 *.env
 /src/configs
+
+# Multer upload dir
+/uploads
