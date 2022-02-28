@@ -1,0 +1,42 @@
+{
+  "name": "nodejs_authapp",
+  "version": "1.0.0",
+  "description": "A Node.js app that implements APIs to emulate basic User authentication",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://SBTopZZZ-LG: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@github.com/SBTopZZZ-LG/nodejs-authapp.git"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "jwt",
+    "mongodb",
+    "expressjs",
+    "jsonwebtoken",
+    "mongoosejs",
+    "nodemailer",
+    "twilio-sms-api",
+    "user-authentication"
+  ],
+  "author": "SBTopZZZ-LG",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/SBTopZZZ-LG/nodejs-authapp/issues"
+  },
+  "homepage": "https://github.com/SBTopZZZ-LG/nodejs-authapp#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "firebase-admin": "^10.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.2.3",
+    "nodemailer": "^6.7.2",
+    "twilio": "^3.75.0",
+    "uuid": "^8.3.2"
+  }
+}
