@@ -1,0 +1,11 @@
+# Node modules
+/node_modules
+
+# Vscode/Macos dirs
+/.vscode
+.DS_Store
+
+# Env vars / Configs
+.env
+*.env
+/src/configs
