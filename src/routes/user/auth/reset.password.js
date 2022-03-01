@@ -47,12 +47,6 @@ Router.post("/user/auth/resetPassword", async (req, res, next) => {
                 result: {}
             })
 
-        if (!(await User.findOne({ "email.email": email }).exec()))
-            return res.status(404).send({
-                error: "emailDoesNotExist",
-                result: {}
-            })
-
         await Verification.createResetPasswordVerification(email, new_password)
 
         return res.status(200).send({
