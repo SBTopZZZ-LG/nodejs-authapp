@@ -58,6 +58,8 @@ module.exports = async (req, res, next) => {
                 result: {}
             })
 
+        await user.update() // Check/update avatar url
+
         req.user = user
         return next()
     } catch (e) {
