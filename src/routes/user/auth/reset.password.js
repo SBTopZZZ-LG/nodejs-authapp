@@ -1,6 +1,7 @@
 const Router = require("express").Router()
 const User = require("../../../models/user")
 const Verification = require("../../../models/verify")
+const bcrypt = require("bcryptjs")
 
 Router.post("/user/auth/resetPassword", async (req, res, next) => {
     try {
@@ -44,6 +45,12 @@ Router.post("/user/auth/resetPassword", async (req, res, next) => {
         else if (new_password.length > 16)
             return res.status(400).send({
                 error: "passwordIsTooLong",
+                result: {}
+            })
+
+        if (await bcrypt.compare(new_password, user["password"]))
+            return res.status(403).send({
+                error: "passwordsCanNotBeSame",
                 result: {}
             })
 
