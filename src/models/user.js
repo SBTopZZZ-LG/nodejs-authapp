@@ -5,6 +5,7 @@ const Verification = require("../models/verify")
 const Storage = require("../utils/firebase.storage")
 const { v4: uuidv4 } = require("uuid")
 const bcrypt = require("bcryptjs")
+const UserRecord = require("../utils/user.verify.record")
 
 const schema = new Schema({
     avatar_url: {
@@ -246,8 +247,11 @@ schema.methods.changeEmail = async function (email, { autosave }) {
     if (!/^[a-z0-9\._]+@[a-z0-9\._]+$/i.test(email))
         throw new Error("malformedEmail")
 
-    if (await this.constructor.findOne({ "email.email": email }).exec())
+    if (await this.constructor.findOne({ "email.email": email }).where("_id").ne(this["_id"]).exec())
         throw new Error("emailAlreadyInUse")
+
+    if (!UserRecord.add(`email+${this["_id"].toString()}`))
+        throw new Error("timeout")
 
     this["email"]["email"] = email
     this["email"]["isVerified"] = false
@@ -264,8 +268,11 @@ schema.methods.changePhone = async function (phone, { autosave }) {
     if (!/^\+\d+ \d+$/.test(phone))
         throw new Error("malformedPhoneNumber")
 
-    if (await this.constructor.findOne({ "phone.phone": phone }).exec())
+    if (await this.constructor.findOne({ "phone.phone": phone }).where("_id").ne(this["_id"]).exec())
         throw new Error("phoneNumberAlreadyInUse")
+
+    if (!UserRecord.add(`phone+${this["_id"].toString()}`))
+        throw new Error("timeout")
 
     this["phone"]["phone"] = phone
     this["phone"]["isVerified"] = false
@@ -351,11 +358,13 @@ schema.pre('save', async function (next) {
 
     if (user.isModified("email.email")) {
         await user.changeEmail(user["email"]["email"], { autosave: false })
-        user["login_tokens"] = []
+        if (!user["phone"]["isVerified"])
+            user["login_tokens"] = []
     }
     if (user.isModified("phone.phone")) {
         await user.changePhone(user["phone"]["phone"], { autosave: false })
-        user["login_tokens"] = []
+        if (!user["email"]["isVerified"])
+            user["login_tokens"] = []
     }
     if (user.isModified("password")) {
         await user.changePassword(user["password"], { autosave: false })
