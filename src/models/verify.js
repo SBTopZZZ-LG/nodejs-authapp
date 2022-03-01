@@ -30,7 +30,7 @@ const schema = new Schema({
 
 schema.statics.createEmailVerification = async function (email) {
     if (typeof email != "string")
-        throw new Error("Email is not a valid string")
+        throw new Error("emailNotAValidString")
 
     // Remove previous verifications
     await this.deleteMany({ type: "email", value: email }).exec()
@@ -42,14 +42,13 @@ schema.statics.createEmailVerification = async function (email) {
     })
     await verification.save()
 
-    // TODO: Uncomment
     await Nodemailer.sendEmail(email, "Verify your email ✅", `Hello fellow user!\n\nBefore you can continue, you need to verify your email address.\nClick the link below to activate your email:\nhttp://localhost:3000/user/verify?token=${verification["verification_token"]}`)
 
     return verification
 }
 schema.statics.createPhoneVerification = async function (phone) {
     if (typeof phone != "string")
-        throw new Error("Phone number is not a valid string")
+        throw new Error("phoneNotAValidString")
 
     // Remove previous verifications
     await this.deleteMany({ type: "phone", value: phone }).exec()
@@ -61,22 +60,21 @@ schema.statics.createPhoneVerification = async function (phone) {
     })
     await verification.save()
 
-    // TODO: Uncomment
-    // await Twilio.sendSms(phone, "Hello fellow user!\n\nBefore you can continue, you need to verify your phone number.\nClick the link below to activate your phone number:\nURL")
+    await Twilio.sendSms(phone, `Hello fellow user!\n\nBefore you can continue, you need to verify your phone number.\nClick the link below to activate your phone number:\nhttp://localhost:3000/user/verify?token=${verification["verification_token"]}`)
 
     return verification
 }
 schema.statics.createResetPasswordVerification = async function (target, new_password) {
     if (typeof target != "string" || typeof new_password != "string")
-        throw new Error("Password is not a valid string")
+        throw new Error("passwordNotAValidString")
 
     if (!/^[a-z0-9\._]+@[a-z0-9\._]+$/i.test(target))
-        throw new Error("Email is invalid")
+        throw new Error("malformedEmail")
 
     if (new_password.length < 6)
-        throw new Error("Password is too short")
+        throw new Error("passwordTooShort")
     else if (new_password.length > 16)
-        throw new Error("Password is too long")
+        throw new Error("passwordTooLong")
 
     // Remove previous verifications
     await this.deleteMany({ type: "password", target }).exec()
@@ -89,13 +87,13 @@ schema.statics.createResetPasswordVerification = async function (target, new_pas
     })
     await verification.save()
 
-    await Nodemailer.sendEmail(target, "Password reset", `Hello!\n\nLooks like someone, or you, have requested to reset your account's password.\nClick on the link below to confirm password reset.\nhttp://localhost:3000/user/verify?token=${verification["verification_token"]}`)
+    await Nodemailer.sendEmail(target, "Password reset ⚠️", `Hello!\n\nLooks like someone, or you, have requested to reset your account's password.\nClick on the link below to confirm password reset.\nhttp://localhost:3000/user/verify?token=${verification["verification_token"]}`)
 
     return verification
 }
 schema.statics.completeVerification = async function (verification_token) {
     if (typeof verification_token != "string")
-        throw new Error("Verification token is not a valid string")
+        throw new Error("verificationTokenNotAValidString")
 
     return this.findOne({ verification_token }).exec()
 }

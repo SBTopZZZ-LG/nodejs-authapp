@@ -15,7 +15,7 @@ const schema = new Schema({
                 if (!url) return true
 
                 if (!/^http(s)?:\/\/.+$/.test(url))
-                    throw new Error("Avatar url is invalid")
+                    throw new Error("invalidAvatarUrl")
 
                 return true
             },
@@ -28,7 +28,7 @@ const schema = new Schema({
                 if (!last_refreshed) return true
 
                 if (last_refreshed.getTime() > Date.now())
-                    throw new Error("Last refreshed cannot be a future date")
+                    throw new Error("invalidLastRefreshedDate")
 
                 return true
             }
@@ -40,7 +40,7 @@ const schema = new Schema({
             required: true,
             validate: (email) => {
                 if (!/^[a-z0-9\._]+@[a-z0-9\._]+$/i.test(email))
-                    throw new Error("Email is malformed")
+                    throw new Error("malformedEmail")
 
                 return true
             },
@@ -57,7 +57,7 @@ const schema = new Schema({
             required: true,
             validate: (phone) => {
                 if (!/^\+\d+ \d+$/.test(phone))
-                    throw new Error("Phone number is malformed")
+                    throw new Error("malformedPhoneNumber")
 
                 return true
             },
@@ -77,7 +77,7 @@ const schema = new Schema({
         required: true,
         validate: (full_name) => {
             if (!/^.+ (.+ )?.+$/i.test(full_name))
-                throw new Error("Full name is invalid")
+                throw new Error("invalidFullName")
 
             return true
         },
@@ -96,7 +96,7 @@ const schema = new Schema({
                     if (!question) return true
 
                     if (question.trim().length == 0)
-                        throw new Error("First question is invalid")
+                        throw new Error("invalidFirstQuestion")
 
                     return true
                 },
@@ -109,7 +109,7 @@ const schema = new Schema({
                     if (!answer) return true
 
                     if (answer.trim().length == 0)
-                        throw new Error("First question answer is invalid")
+                        throw new Error("invalidFirstQuestionAnswer")
 
                     return true
                 },
@@ -124,7 +124,7 @@ const schema = new Schema({
                     if (!question) return true
 
                     if (question.trim().length == 0)
-                        throw new Error("Second question is invalid")
+                        throw new Error("invalidSecondQuestion")
 
                     return true
                 },
@@ -137,7 +137,7 @@ const schema = new Schema({
                     if (!answer) return true
 
                     if (answer && answer.trim().length == 0)
-                        throw new Error("Second question answer is invalid")
+                        throw new Error("invalidSecondQuestionAnswer")
 
                     return true
                 },
@@ -152,7 +152,7 @@ const schema = new Schema({
                     if (!question) return true
 
                     if (question && question.trim().length == 0)
-                        throw new Error("Third question is invalid")
+                        throw new Error("invalidThirdQuestion")
 
                     return true
                 },
@@ -165,7 +165,7 @@ const schema = new Schema({
                     if (!answer) return true
 
                     if (answer && answer.trim().length == 0)
-                        throw new Error("Third question answer is invalid")
+                        throw new Error("invalidThirdQuestionAnswer")
 
                     return true
                 },
@@ -183,7 +183,7 @@ const schema = new Schema({
             required: true,
             validate: (device_name) => {
                 if (device_name.trim().length == 0)
-                    throw new Error("Device name is invalid")
+                    throw new Error("invalidDeviceName")
 
                 return true
             },
@@ -194,7 +194,7 @@ const schema = new Schema({
 
 schema.statics.createUser = async function (full_name, email, phone, password) {
     if (typeof full_name != "string")
-        throw new Error("Full name is not a valid string")
+        throw new Error("fullNameNotAValidString")
 
     const user = new this({
         full_name,
@@ -212,23 +212,23 @@ schema.statics.createUser = async function (full_name, email, phone, password) {
 }
 schema.statics.signIn = async function (email, phone, password) {
     if (!email && !phone)
-        throw new Error("Email or Phone number required")
+        throw new Error("emailOrPhoneRequired")
     else if (email && typeof email != "string")
-        throw new Error("Email is not a valid string")
+        throw new Error("emailNotAValidString")
     else if (phone && typeof phone != "string")
-        throw new Error("Phone number is not a valid string")
+        throw new Error("phoneNotAValidString")
     else if (typeof password != "string")
-        throw new Error("Password is not a valid string")
+        throw new Error("passwordNotAValidString")
 
     const user = email ? await this.findOne({ "email.email": email }).exec() : await this.findOne({ "phone.phone": phone }).exec()
     if (!user)
-        throw new Error("User account does not exist")
+        throw new Error("userNotFound")
 
     if (!(await bcrypt.compare(password, user["password"])))
-        throw new Error("Password mismatch")
+        throw new Error("passwordMismatch")
 
     if (!user["email"]["isVerified"] && !user["phone"]["isVerified"])
-        throw new Error("Email and/or Phone number verification required")
+        throw new Error("emailAndOrPhoneVerificationRequired")
 
     return user
 }
@@ -241,13 +241,13 @@ schema.methods.update = async function () {
 }
 schema.methods.changeEmail = async function (email, { autosave }) {
     if (typeof email != "string")
-        throw new Error("Email is not a valid string")
+        throw new Error("emailNotAValidString")
 
     if (!/^[a-z0-9\._]+@[a-z0-9\._]+$/i.test(email))
-        throw new Error("Email is invalid")
+        throw new Error("malformedEmail")
 
     if (await this.constructor.findOne({ "email.email": email }).exec())
-        throw new Error("Email is already in use")
+        throw new Error("emailAlreadyInUse")
 
     this["email"]["email"] = email
     this["email"]["isVerified"] = false
@@ -259,13 +259,13 @@ schema.methods.changeEmail = async function (email, { autosave }) {
 }
 schema.methods.changePhone = async function (phone, { autosave }) {
     if (typeof phone != "string")
-        throw new Error("Phone is not a valid string")
+        throw new Error("phoneNotAValidString")
 
     if (!/^\+\d+ \d+$/.test(phone))
-        throw new Error("Phone is invalid")
+        throw new Error("malformedPhoneNumber")
 
     if (await this.constructor.findOne({ "phone.phone": phone }).exec())
-        throw new Error("Phone number is already in use")
+        throw new Error("phoneNumberAlreadyInUse")
 
     this["phone"]["phone"] = phone
     this["phone"]["isVerified"] = false
@@ -277,12 +277,12 @@ schema.methods.changePhone = async function (phone, { autosave }) {
 }
 schema.methods.changePassword = async function (password, { autosave }) {
     if (typeof password != "string")
-        throw new Error("Password is not a valid string")
+        throw new Error("passwordNotAValidString")
 
     if (password.length < 6)
-        throw new Error("Password is too short")
+        throw new Error("passwordTooShort")
     else if (password.length > 16)
-        throw new Error("Password is too long")
+        throw new Error("passwordTooLong")
 
     this["password"] = await bcrypt.hash(password, 8)
 
@@ -291,10 +291,10 @@ schema.methods.changePassword = async function (password, { autosave }) {
 }
 schema.methods.generateLoginToken = async function (device_name, { autosave }) {
     if (typeof device_name != "string")
-        throw new Error("Device name is not a valid string")
+        throw new Error("deviceNameNotAValidString")
 
     if (device_name.trim().length == 0)
-        throw new Error("Device name is invalid")
+        throw new Error("malformedDeviceName")
 
     const login_token = uuidv4()
     if (!this["login_tokens"])
@@ -312,27 +312,27 @@ schema.methods.generateLoginToken = async function (device_name, { autosave }) {
 
 schema.methods.completeVerification = async function (verification) {
     if (typeof verification != 'object')
-        throw new Error("Verification is not a valid object")
+        throw new Error("verificationNotAValidObject")
 
     if (verification["type"] === "email") {
         if (verification["value"] !== this["email"]["email"])
-            throw new Error("Verification email does not match that of current user")
+            throw new Error("verificationEmailMismatch")
         if (this["email"]["isVerified"])
-            throw new Error("Email address already verified")
+            throw new Error("emailAlreadyVerified")
     } else if (verification["type"] === "phone") {
         if (verification["value"] !== this["phone"]["phone"])
-            throw new Error("Verification phone number does not match that of current user")
+            throw new Error("verificationPhoneMismatch")
         if (this["phone"]["isVerified"])
-            throw new Error("Phone number address already verified")
+            throw new Error("phoneAlreadyVerified")
     } else if (verification["type"] === "password") {
         if (verification["target"] !== this["email"]["email"])
-            throw new Error("Verification does not target")
+            throw new Error("verificationTargetMismatch")
     }
 
     if (verification["expires_at"] < Date.now()) {
         // Delete
         await Verification.deleteOne({ _id: verification["_id"] }).exec()
-        throw new Error("Verification expired")
+        throw new Error("verificationExpired")
     }
 
     if (verification["type"] === "email")
