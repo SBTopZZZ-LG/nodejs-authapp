@@ -41,34 +41,47 @@ Router.post("/user/2fa/enable", LoginTokenAuth, async (req, res, next) => {
                         error: "firstQuestionUnverified",
                         result: {}
                     })
-                else
+                else if (!("answer" in first_question && first_question["answer"]))
+                    return res.status(400).send({
+                        error: "firstQuestionAnswerMissing",
+                        result: {}
+                    })
+                else {
                     req.user["two_factor_auth"]["first_question"]["question"] = first_question["question"]
-            if ("answer" in first_question && first_question["answer"])
-                req.user["two_factor_auth"]["first_question"]["answer"] = first_question["answer"]
+                    req.user["two_factor_auth"]["first_question"]["answer"] = first_question["answer"]
+                }
         }
         if (second_question) {
-            if ("question" in second_question && second_question["question"])
-                if (!TwoFA.questions.includes(second_question["question"]))
-                    return res.status(403).send({
-                        error: "secondQuestionUnverified",
-                        result: {}
-                    })
-                else
-                    req.user["two_factor_auth"]["second_question"]["question"] = second_question["question"]
-            if ("answer" in second_question && second_question["answer"])
+            if (!TwoFA.questions.includes(second_question["question"]))
+                return res.status(403).send({
+                    error: "secondQuestionUnverified",
+                    result: {}
+                })
+            else if (!("answer" in second_question && second_question["answer"]))
+                return res.status(400).send({
+                    error: "secondQuestionAnswerMissing",
+                    result: {}
+                })
+            else {
+                req.user["two_factor_auth"]["second_question"]["question"] = second_question["question"]
                 req.user["two_factor_auth"]["second_question"]["answer"] = second_question["answer"]
+            }
         }
         if (third_question) {
-            if ("question" in third_question && third_question["question"])
-                if (!TwoFA.questions.includes(third_question["question"]))
-                    return res.status(403).send({
-                        error: "thirdQuestionUnverified",
-                        result: {}
-                    })
-                else
-                    req.user["two_factor_auth"]["third_question"]["question"] = third_question["question"]
-            if ("answer" in third_question && third_question["answer"])
+            if (!TwoFA.questions.includes(third_question["question"]))
+                return res.status(403).send({
+                    error: "thirdQuestionUnverified",
+                    result: {}
+                })
+            else if (!("answer" in third_question && third_question["answer"]))
+                return res.status(400).send({
+                    error: "thirdQuestionAnswerMissing",
+                    result: {}
+                })
+            else {
+                req.user["two_factor_auth"]["third_question"]["question"] = third_question["question"]
                 req.user["two_factor_auth"]["third_question"]["answer"] = third_question["answer"]
+            }
         }
 
         const recorded_questions = []
