@@ -5,6 +5,7 @@ const Verification = require("../models/verify")
 const Storage = require("../utils/firebase.storage")
 const { v4: uuidv4 } = require("uuid")
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 const UserRecord = require("../utils/user.verify.record")
 
 const schema = new Schema({
@@ -347,7 +348,7 @@ schema.methods.completeVerification = async function (verification) {
     else if (verification["type"] === "phone")
         this["phone"]["isVerified"] = true
     else if (verification["type"] === "password")
-        this["password"] = verification["value"]
+        this["password"] = jwt.decode(verification["value"]).toString()
 
     await this.save()
     await Verification.deleteOne({ _id: verification["_id"] }).exec()

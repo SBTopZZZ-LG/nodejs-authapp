@@ -4,6 +4,7 @@ const Schema = mongoose.Schema
 const { v4: uuidv4 } = require("uuid")
 const Nodemailer = require("../utils/nodemailer")
 const Twilio = require("../utils/twilio.sms")
+const jwt = require("jsonwebtoken")
 
 const schema = new Schema({
     type: {
@@ -82,7 +83,7 @@ schema.statics.createResetPasswordVerification = async function (target, new_pas
     const verification = new this({
         type: "password",
         target,
-        value: new_password,
+        value: jwt.sign(new_password, uuidv4()),
         expires_at: Date.now() + 24 * 60 * 60 * 1000
     })
     await verification.save()
