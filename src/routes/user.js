@@ -4,6 +4,7 @@ const LoginTokenAuth = require("../middlewares/login_token.auth")
 Router.post("/user", LoginTokenAuth, async (req, res, next) => {
     try {
         const user = req.user
+
         // Delete sensitive fields
         user["password"] = null
         user["two_factor_auth"] = null

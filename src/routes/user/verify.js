@@ -36,7 +36,6 @@ Router.get("/user/verify", async (req, res, next) => {
             result: null
         })
     } catch (e) {
-        console.error(e)
         return res.status(500).send({
             error: e.toString(),
             result: {}
