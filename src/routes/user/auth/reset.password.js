@@ -7,12 +7,21 @@ Router.post("/user/auth/resetPassword", async (req, res, next) => {
         const query = req.query
         const body = req.body
 
-        const email = query["email"]
-        if (!email)
+        const id = query["id"]
+        if (!id)
             return res.status(400).send({
-                error: "missingEmail",
+                error: "missingId",
                 result: {}
             })
+
+        const user = await User.findById(id).exec()
+        if (!user)
+            return res.status(404).send({
+                error: "userNotFound",
+                result: {}
+            })
+
+        const email = user["email"]["email"]
 
         const new_password = body["password"]
         if (!new_password)
